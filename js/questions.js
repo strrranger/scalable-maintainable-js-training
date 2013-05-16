@@ -1,11 +1,8 @@
-;(function ( $, window, document, undefined ) {
-
-    var pluginName = "questions",
-        defaults = {
-            jsonPath: "questions.json",
-            onComplete:function(){}
-        };
-
+var APP = APP || {};
+APP.Questions = (function (window, $) {
+    var defaults = {
+        jsonPath: "questions.json"
+    };
     function Plugin( element, options ) {
         this.element = element;
 
@@ -128,7 +125,7 @@
             this._bindEvents();
         }
         else
-            this.options.onComplete(this.points);
+            APP.EventBus.trigger("questions:complete", this.points);
     };
 
     Plugin.prototype._renderQuestion = function(question){
@@ -151,13 +148,11 @@
         });
     };
 
-    $.fn[pluginName] = function ( options ) {
-        return this.each(function () {
-            if ( !$.data(this, "plugin_" + pluginName )) {
-                $.data( this, "plugin_" + pluginName,
-                    new Plugin( this, options ));
-            }
-        });
+    return {
+        init: function (element, options){
+            new Plugin( element, options);
+        }
+
     };
 
-})( jQuery, window, document );
+})(window, jQuery);

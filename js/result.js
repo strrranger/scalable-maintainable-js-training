@@ -1,10 +1,10 @@
-;(function ( $, window, document, undefined ) {
+var APP = APP || {};
+APP.Result = (function (window, $) {
 
-    var pluginName = "result",
-        defaults = {
-            jsonPath: "results.json",
-            points: 0
-        };
+    var defaults = {
+        jsonPath: "results.json",
+        points: 0
+    };
 
     function Plugin( element, options ) {
         this.element = element;
@@ -16,7 +16,11 @@
 
     Plugin.prototype.init = function () {
         this._loadData();
-        this._render();
+        this._bind();
+    };
+
+    Plugin.prototype._bind = function(){
+        APP.EventBus.bind("result:show", this._render, this);
     };
 
     Plugin.prototype._loadData = function(){
@@ -41,29 +45,26 @@
         ];
     };
 
-    Plugin.prototype._getStatus = function(){
+    Plugin.prototype._getStatus = function(points){
         var status = '';
-        var points = this.options.points;
-        var maxPoints = 0;
+        var minPoints = 100;
         $.each(this.data, function(i, result){
-            if(maxPoints < result.to && points >= result.to)
+            if(minPoints > result.to && points <= result.to){
                 status = result.status;
-                maxPoints = result.to;
+                minPoints = result.to;
+            }
         });
         return status;
     };
 
-    Plugin.prototype._render = function(){
-        $(this.element).html('<b>Баллы:</b>&nbsp;'+this.options.points+'<br/><b>Результат:</b>&nbsp;' + this._getStatus());
+    Plugin.prototype._render = function(points){
+        $(this.element).html('<b>Баллы:</b>&nbsp;'+points+'<br/><b>Результат:</b>&nbsp;' + this._getStatus(points));
     };
 
-    $.fn[pluginName] = function ( options ) {
-        return this.each(function () {
-            if ( !$.data(this, "plugin_" + pluginName )) {
-                $.data( this, "plugin_" + pluginName,
-                    new Plugin( this, options ));
-            }
-        });
+    return {
+        init: function (element, options){
+            new Plugin( element, options);
+        }
     };
 
-})( jQuery, window, document );
+})(window, jQuery);
