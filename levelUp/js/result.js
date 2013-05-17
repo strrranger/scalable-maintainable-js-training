@@ -1,6 +1,4 @@
-var APP = APP || {};
-APP.Result = (function (window, $) {
-
+define('result', ["jquery", "app"], function ($, APP) {
     var defaults = {
         jsonPath: "results.json",
         points: 0
@@ -20,29 +18,19 @@ APP.Result = (function (window, $) {
     };
 
     Plugin.prototype._bind = function(){
-        APP.EventBus.bind("result:show", this._render, this);
+        APP.EventBus.on("result:show", this._render, this);
     };
 
     Plugin.prototype._loadData = function(){
-        /*var tempData = [];
-         $.getJSON(this.options.jsonPath, function(data){
-         tempData = data;
-         });
-         this.data = tempData;*///не работает локально
-        this.data = [
-            {
-                "to": 16,
-                "status": "Диплом бакалавра"
-            },
-            {
-                "to": 23,
-                "status": "Диплом магистра"
-            },
-            {
-                "to": 30,
-                "status": "Диплом доктора"
+        var self = this;
+        $.ajax({
+            dataType: "json",
+            async: false,
+            url: this.options.jsonPath,
+            success: function (data) {
+                self.data = data;
             }
-        ];
+        });
     };
 
     Plugin.prototype._getStatus = function(points){
@@ -66,5 +54,4 @@ APP.Result = (function (window, $) {
             new Plugin( element, options);
         }
     };
-
-})(window, jQuery);
+});
